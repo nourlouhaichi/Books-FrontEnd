@@ -1,1 +1,44 @@
-<p>header works!</p>
+
+  <div class="container">
+    <div class="logo">
+      <a routerLink="/home"><img src="assets/images/logo.png" alt="Logo" width="45" height="40" style="vertical-align: middle; margin-right: 8px;"></a>
+      <a routerLink="/home"><img src="assets/images/name.png" alt="Logo" width="180" height="30" style="vertical-align: middle; margin-right: 8px;"></a>
+    </div>
+
+    
+    <nav class="nav-desktop">
+      <ul>
+        <li><a routerLink="/home">Home</a></li>
+        <li><a routerLink="/books">Books</a></li>
+        <li><a routerLink="/library">My Library</a></li>
+        <li><a routerLink="/favorites">Favorites</a></li>
+        <li><a routerLink="/statistics">Statistics</a></li>
+      </ul>
+    </nav>
+
+   <div class="header-actions">
+      <button class="add-book-btn">
+        <i class="plus-icon">+</i>
+        <span>Add a book</span>
+      </button>
+    </div>
+
+
+    <!-- Menu burger pour mobile -->
+    <button class="menu-toggle" (click)="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+
+  <!-- Menu mobile -->
+  <nav class="nav-mobile" [class.active]="isMenuOpen">
+    <ul>
+      <li><a routerLink="/home" (click)="closeMenu()">Home</a></li>
+      <li><a routerLink="/books" (click)="closeMenu()">Books</a></li>
+      <li><a routerLink="/library" (click)="closeMenu()">My Library</a></li>
+      <li><a routerLink="/favorites" (click)="closeMenu()">Favorites</a></li>
+      <li><a routerLink="/statistics" (click)="closeMenu()">Statistics</a></li>
+    </ul>
+  </nav>

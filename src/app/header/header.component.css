@@ -1,0 +1,207 @@
+/* header.component.css */
+.header {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.logo h1 {
+  color: #3182ce;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-desktop ul {
+  list-style: none;
+  display: flex;
+  gap: 32px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-desktop a {
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-family: 'Poppins', sans-serif;
+}
+
+.nav-desktop a:hover {
+  color: #3182ce;
+  background-color: #f7fafc;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  padding: 0 10px;
+  font-size: 15px;
+  flex: 1;
+  background: transparent;
+  color: #2d3748;
+}
+
+.search-btn {
+  border: none;
+  background: transparent;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #718096;
+  transition: color 0.2s ease;
+}
+
+.search-btn:hover {
+  color: #4a5568;
+}
+
+.search-icon {
+  font-size: 16px;
+}
+
+.add-book-btn {
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-book-btn:hover {
+  background: #ec3143;
+}
+
+.plus-icon {
+  font-size: 14px;
+}
+
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.menu-toggle:hover {
+  background: #f7fafc;
+}
+
+.menu-toggle span {
+  width: 20px;
+  height: 2px;
+  background: #4a5568;
+  margin: 2px 0;
+  transition: 0.3s;
+  border-radius: 1px;
+}
+
+.nav-mobile {
+  display: none;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.nav-mobile ul {
+  list-style: none;
+  margin: 0;
+  padding: 16px 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px;
+}
+
+.nav-mobile li {
+  margin: 0;
+}
+
+.nav-mobile a {
+  color: #4a5568;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  display: block;
+  padding: 12px 0;
+  border-bottom: 1px solid #f7fafc;
+  transition: color 0.2s ease;
+}
+
+.nav-mobile a:hover {
+  color: #3182ce;
+}
+
+.nav-mobile li:last-child a {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nav-desktop {
+    display: none;
+  }
+  
+  .menu-toggle {
+    display: flex;
+  }
+  
+  .nav-mobile.active {
+    display: block;
+  }
+  
+  .header-actions {
+    gap: 8px;
+  }
+  
+  .add-book-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  
+  .add-book-btn .plus-icon {
+    display: none;
+  }
+  
+  .container {
+    height: 56px;
+  }
+}

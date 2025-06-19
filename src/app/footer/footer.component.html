@@ -1,1 +1,44 @@
-<p>footer works!</p>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      
+      <div class="footer-section">
+        <div class="logo">
+          <img src="assets/images/logo.png" alt="Logo" width="45" height="40" style="vertical-align: middle; margin-right: 8px;">
+          <img src="assets/images/name.png" alt="Logo Name" width="180" height="30" style="vertical-align: middle;">
+        </div>
+        <p>Your personal reading companion to organize and track your favorite books.</p>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/books">Books</a></li>
+          <li><a routerLink="/library">My Library</a></li>
+          <li><a routerLink="/favorites">Favorites</a></li>
+          <li><a routerLink="/statistics">Statistics</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-section">
+        <h4>Useful Links</h4>
+        <ul>
+          <li><a >Privacy Policy</a></li>
+          <li><a >Terms of Use</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; {{ currentYear }} BookMark. All rights reserved.</p>
+    </div>
+  </div>
+</footer>

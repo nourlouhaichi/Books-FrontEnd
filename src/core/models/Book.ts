@@ -10,4 +10,5 @@ export class Book {
     pages!: number
     start!: Date
     end!: Date
+    categories?: { idCategory: number; name: string }[];
 }
