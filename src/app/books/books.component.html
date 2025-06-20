@@ -1,32 +1,39 @@
 <div class="home-container">
   <hr><br>
 
-  <div class="search-bar-container" style="display: flex; justify-content: flex-end; gap: 10px; margin-right: 70px; margin-bottom: 20px;">
-  <!-- Search input -->
-  <div class="search-bar" style="max-width: 300px; position: relative;">
-    <input
-      type="text"
-      placeholder="Title or author..."
-      [(ngModel)]="searchTerm"
-      (input)="onSearchChange()"
-    />
-    <i class="fas fa-search search-icon"></i>
+  <!-- Search and Category Filter -->
+  <div class="search-bar-container" style="display: flex; justify-content: flex-end; gap: 10px; margin-right: 70px; margin-bottom: 20px; flex-wrap: wrap;">
+    <!-- Search input -->
+    <div class="search-bar" style="max-width: 300px; position: relative;">
+      <input
+        type="text"
+        placeholder="Title or author..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        style="padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e0; width: 100%;"
+      />
+      <i class="fas fa-search search-icon" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+    </div>
+
+    <!-- Category filter -->
+    <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0; font-family: 'Segoe UI', sans-serif;">
+      <option value="">All categories</option>
+      <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+    </select>
   </div>
-
-  <!-- Category filter -->
-  <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0; font-family: 'Segoe UI', sans-serif;">
-    <option value="">All categories</option>
-    <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
-  </select>
-</div>
-
 
   <!-- Book Catalogue -->
   <div class="book-catalogue">
     <h2 class="catalogue-title">Book Catalogue</h2>
+
     <div class="books-grid">
-      <div class="book-card" *ngFor="let book of paginatedBooks">
-        <img [src]="book.cover" alt="{{ book.title }}" class="book-cover" />
+      <div
+        class="book-card"
+        *ngFor="let book of paginatedBooks"
+        [routerLink]="['/books', book.idBook]"
+        style="cursor: pointer;"
+      >
+        <img [src]="'assets/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
           <p class="book-author">{{ book.author }}</p>

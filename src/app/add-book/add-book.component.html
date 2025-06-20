@@ -1,0 +1,125 @@
+<div class="home-container">  <hr>
+<div class="add-book-container">
+  <h2>Add a New Book</h2>
+  
+  <!-- Indicateur de progression -->
+  <div class="progress-indicator">
+    <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+      <div class="step-number">1</div>
+      <div class="step-label">Book Information</div>
+    </div>
+    <div class="progress-line" [class.completed]="currentStep > 1"></div>
+    <div class="step" [class.active]="currentStep === 2">
+      <div class="step-number">2</div>
+      <div class="step-label">Details & Categories</div>
+    </div>
+  </div>
+
+  <form [formGroup]="bookForm" novalidate>
+    
+    <!-- ÉTAPE 1: Informations de base -->
+    <div *ngIf="currentStep === 1" class="step-content">
+      <h3 class="step-title">Book Information</h3>
+      
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" formControlName="title" required />
+        <div *ngIf="bookForm.get('title')?.invalid && bookForm.get('title')?.touched" class="error">
+          Title is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Author *</label>
+        <input type="text" formControlName="author" required />
+        <div *ngIf="bookForm.get('author')?.invalid && bookForm.get('author')?.touched" class="error">
+          Author is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Series</label>
+        <input type="text" formControlName="series" />
+        <small>Optional: Enter series name if this book is part of a series</small>
+      </div>
+
+      <div class="form-group">
+        <label>Pages *</label>
+        <input type="number" formControlName="pages" required min="1" />
+        <div *ngIf="bookForm.get('pages')?.invalid && bookForm.get('pages')?.touched" class="error">
+          Pages is required and must be greater than 0
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Publication Date *</label>
+        <input type="date" formControlName="publicationInfo" required />
+        <div *ngIf="bookForm.get('publicationInfo')?.invalid && bookForm.get('publicationInfo')?.touched" class="error">
+          Publication date is required
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2: Détails et catégories -->
+    <div *ngIf="currentStep === 2" class="step-content">
+      <h3 class="step-title">Details & Categories</h3>
+      
+      <div class="form-group">
+        <label>Summary *</label>
+        <textarea formControlName="summary" rows="4" required placeholder="Enter a brief summary of the book..."></textarea>
+        <div *ngIf="bookForm.get('summary')?.invalid && bookForm.get('summary')?.touched" class="error">
+          Summary is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Cover Image</label>
+        <input type="file" (change)="onFileChange($event)" accept="image/*" />
+        <small *ngIf="coverFile">Selected: {{ coverFile.name }}</small>
+        <small *ngIf="!coverFile">Optional: Choose a cover image for the book</small>
+      </div>
+
+      <div class="form-group">
+        <label>Categories</label>
+        <div class="categories-container">
+          <div *ngFor="let cat of categories" class="category-item">
+            <input type="checkbox"
+                   [value]="cat.idCategory"
+                   [id]="'cat-' + cat.idCategory"
+                   (change)="onCategoryChange($event)" />
+            <label [for]="'cat-' + cat.idCategory">{{ cat.name }}</label>
+          </div>
+        </div>
+        <small>Select one or more categories that best describe this book</small>
+      </div>
+    </div>
+
+    <!-- Boutons de navigation -->
+    <div class="navigation-buttons">
+      <button type="button" 
+              *ngIf="currentStep > 1" 
+              (click)="previousStep()" 
+              class="nav-btn prev-btn">
+        ← Previous
+      </button>
+      
+      <div class="spacer" *ngIf="currentStep === 1"></div>
+      
+      <button type="button" 
+              *ngIf="currentStep < totalSteps" 
+              (click)="nextStep()" 
+              [disabled]="!isStep1Valid()"
+              class="nav-btn next-btn">
+        Next →
+      </button>
+      
+      <button type="button" 
+              *ngIf="currentStep === totalSteps" 
+              (click)="onSubmit()"
+              [disabled]="!bookForm.valid"
+              class="submit-btn">
+        Add Book
+      </button>
+    </div>
+  </form>
+</div>

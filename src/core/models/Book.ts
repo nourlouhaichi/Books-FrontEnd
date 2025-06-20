@@ -4,11 +4,13 @@ export class Book {
     summary!: string
     cover!: string
     author!: string
+    series!: string
     status!: boolean
     liked!: boolean
     progress!: number
     pages!: number
     start!: Date
     end!: Date
-    categories?: { idCategory: number; name: string }[];
+    publicationInfo!: Date
+    categories?: { idCategory: number; name: string; description: string }[];
 }

@@ -34,7 +34,9 @@ export class HomeComponent implements OnInit {
         progress: 100,
         pages: 96,
         start: new Date('2024-01-15'),
-        end: new Date('2024-01-20')
+        end: new Date('2024-01-20'),
+        publicationInfo: new Date(),
+        series: "Dystopian Series"
       },
       {
         idBook: 2,
@@ -47,7 +49,9 @@ export class HomeComponent implements OnInit {
         progress: 65,
         pages: 328,
         start: new Date('2024-02-01'),
-        end: new Date()
+        end: new Date(),
+        publicationInfo: new Date(),
+        series: "Dystopian Series"
       },
       {
         idBook: 3,
@@ -60,7 +64,9 @@ export class HomeComponent implements OnInit {
         progress: 100,
         pages: 159,
         start: new Date('2024-01-01'),
-        end: new Date('2024-01-10')
+        end: new Date('2024-01-10'),
+        publicationInfo: new Date(),
+        series: "Dystopian Series"
       }
     ];
 

@@ -1,1 +1,64 @@
-<p>book-details works!</p>
+<div class="home-container">  <hr><br>
+
+  <div class="book-detail-container">
+    <div class="book-detail-layout">
+
+      <!-- Book cover card -->
+      <div class="book-card">
+        <img [src]="'assets/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover" width = "300px"   />
+      </div>
+
+      <!-- Book details -->
+      <div class="book-info-section">
+        <h1 class="book-title">{{ book.title }}</h1>
+        <p class="book-author">{{ book.author }}</p>
+
+        <p class="book-pub-info" *ngIf="book.publicationInfo">
+          {{ book.publicationInfo | date: 'longDate' }}
+        </p>
+
+        <p class="book-series" *ngIf="book.series">
+          <strong>Series:</strong> {{ book.series }}
+        </p>
+
+        <!-- Static rating (5 stars) -->
+        <div class="book-rating">
+          <i class="fas fa-star" *ngFor="let star of [].constructor(5)"></i>
+        </div>
+
+        <!-- Pages -->
+        <p *ngIf="book.pages">
+          <strong>Pages:</strong> {{ book.pages }}
+        </p>
+
+        <!-- Categories -->
+        <div class="book-categories" *ngIf="book.categories?.length">
+          <span class="category-badge" *ngFor="let cat of book.categories">
+            {{ cat.name }}
+          </span> 
+        </div>
+
+        <!-- Summary -->
+        <h3 class="resume-title">Summary</h3>
+        <p class="book-summary">
+          {{ showFullSummary ? book.summary : (book.summary | slice:0:300) + '...' }}
+          <span class="toggle-summary" (click)="showFullSummary = !showFullSummary">
+            {{ showFullSummary ? 'Show less ▲' : 'Read more ▼' }}
+          </span>
+        </p>
+
+        <!-- Library button -->
+        <button class="library-btn" 
+        [ngClass]="book.status ? 'remove-btn' : 'add-btn'" 
+        (click)="toggleLibraryStatus()">
+            <i class="fas" [ngClass]="book.status ? 'fa-x' : 'fa-plus'"></i>
+            {{ book.status ? ' Remove from Library' : ' Add to library' }}
+          </button>
+          &nbsp;
+        <button class="btn-secondary" routerLink="/books"> <i class="fas fa-arrow-left"></i> Go back</button>
+
+      </div>
+    </div>
+  </div>
+  
+</div>

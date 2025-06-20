@@ -5,12 +5,14 @@ import { BooksComponent } from './books/books.component';
 import { BookDetailsComponent } from './book-details/book-details.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { CommonModule } from '@angular/common';
+import { AddBookComponent } from './add-book/add-book.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "home", pathMatch: 'full' },
   { path: "home", component: HomeComponent },
   { path: 'books', component: BooksComponent },
   { path: 'books/:id', component: BookDetailsComponent },
+  { path: 'addbook', component: AddBookComponent },
   { path: '**', component: NotFoundComponent }
 ];
 

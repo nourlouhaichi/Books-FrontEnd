@@ -38,4 +38,9 @@ export class BookService {
   getReviewsForBook(bookId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.urlBook}/reviews/${bookId}`);
   }
+
+  addToLibrary(bookId: number): Observable<Book> {
+    return this.http.put<Book>(`${this.urlBook}/addToLibrary/${bookId}`, {});
+  }
+
 }
