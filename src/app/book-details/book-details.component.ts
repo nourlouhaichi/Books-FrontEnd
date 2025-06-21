@@ -31,6 +31,4 @@ export class BookDetailsComponent implements OnInit {
     this.book = updatedBook; 
     });
   }
-  
-
 }

@@ -7,9 +7,27 @@ import { Book } from 'src/core/models/Book';
   providedIn: 'root'
 })
 export class BookService {
+  
   urlBook = 'http://localhost:8089/book-service/book';
 
   constructor(private http: HttpClient) {}
+
+  uploadImage(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.http.post(`${this.urlBook}/upload-image`, formData);
+  }
+
+  addBookWithImage(book: Book, categories: string[], imageFile?: File): Observable<Book> {
+    const formData = new FormData();
+    formData.append('book', JSON.stringify(book));
+    categories.forEach(cat => formData.append('categories', cat));
+    if (imageFile) {
+      formData.append('coverImage', imageFile);
+    }
+    
+    return this.http.post<Book>(`${this.urlBook}/addBookWithImage`, formData);
+  }
 
   addBook(book: Book, categories: string[]): Observable<Book> {
     let params = new HttpParams();
@@ -42,5 +60,4 @@ export class BookService {
   addToLibrary(bookId: number): Observable<Book> {
     return this.http.put<Book>(`${this.urlBook}/addToLibrary/${bookId}`, {});
   }
-
 }

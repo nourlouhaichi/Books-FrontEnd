@@ -60,14 +60,14 @@
 }
 
 .step.active .step-number {
-  background-color: #ec3143;
+  background-color: #4a90e2;
   color: white;
-  border-color: #ec3143;
+  border-color: #4a90e2;
   transform: scale(1.1);
 }
 
 .step.active .step-label {
-  color: #ec3143;
+  color: #4a90e2;
   font-weight: 600;
 }
 
@@ -286,7 +286,7 @@
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #357abd 0%, #2968a3 100%);
+  background: linear-gradient(135deg, #ec3143 0%, #ec3143 100%);
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
 }
@@ -401,4 +401,93 @@
   --border-color: #e9ecef;
   --success-color: #28a745;
   --error-color: #dc3545;
+}
+/* Styles pour la prévisualisation d'image */
+.image-preview {
+  margin-top: 10px;
+  position: relative;
+  display: inline-block;
+}
+
+.preview-image {
+  max-width: 200px;
+  max-height: 200px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff4757;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remove-image-btn:hover {
+  background: #ff3742;
+}
+
+.file-info {
+  display: block;
+  margin-top: 5px;
+  color: #28a745;
+  font-weight: 500;
+}
+
+.file-help {
+  display: block;
+  margin-top: 5px;
+  color: #6c757d;
+}
+
+/* Style pour le bouton de soumission avec loading */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Style pour l'input file personnalisé */
+input[type="file"] {
+  padding: 8px;
+  border: 2px dashed #ddd;
+  border-radius: 4px;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+input[type="file"]:hover {
+  border-color: #007bff;
+}
+
+input[type="file"]:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
 }

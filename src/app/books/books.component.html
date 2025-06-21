@@ -33,7 +33,7 @@
         [routerLink]="['/books', book.idBook]"
         style="cursor: pointer;"
       >
-        <img [src]="'assets/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
+       <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
         <div class="book-details">
           <h3 class="book-title">{{ book.title }}</h3>
           <p class="book-author">{{ book.author }}</p>
