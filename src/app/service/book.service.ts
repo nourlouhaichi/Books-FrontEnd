@@ -60,4 +60,8 @@ export class BookService {
   addToLibrary(bookId: number): Observable<Book> {
     return this.http.put<Book>(`${this.urlBook}/addToLibrary/${bookId}`, {});
   }
+
+  addToFavorites(bookId: number): Observable<Book> {
+    return this.http.put<Book>(`${this.urlBook}/addToFavorites/${bookId}`, {});
+  }
 }

@@ -1,0 +1,111 @@
+<div class="home-container">
+  <hr><br>
+
+  <!-- Search and Filters -->
+  <div class="search-bar-container" style="display: flex; justify-content: flex-end; gap: 10px; margin-right: 70px; margin-bottom: 20px; flex-wrap: wrap;">
+    <!-- Search input -->
+    <div class="search-bar" style="max-width: 300px; position: relative;">
+      <input
+        type="text"
+        placeholder="Title or author..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange()"
+        style="padding: 10px 12px; border-radius: 8px; border: 1px solid #cbd5e0; width: 100%;"
+      />
+      <i class="fas fa-search search-icon" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #a0aec0;"></i>
+    </div>
+
+    <!-- Category filter -->
+    <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0; font-family: 'Segoe UI', sans-serif;">
+      <option value="">All categories</option>
+      <option *ngFor="let category of categories" [value]="category">{{ category }}</option>
+    </select>
+
+    <!-- Status filter (now includes Favorites) -->
+    <select [(ngModel)]="selectedStatus" (change)="onStatusChange()" style="padding: 10px; border-radius: 8px; border: 1px solid #cbd5e0; font-family: 'Segoe UI', sans-serif;">
+      <option *ngFor="let status of statusOptions" [value]="status.value">{{ status.label }}</option>
+    </select>
+  </div>
+
+  <section class="recent-books-section">
+    <div class="book-catalogue">
+      <!-- Condition pour afficher les livres ou un message vide -->
+      <div *ngIf="filteredBooks.length > 0; else emptyLibrary">
+        <h2 class="catalogue-title">My Library</h2>
+        <div class="books-grid">
+          <div class="book-card" *ngFor="let book of paginatedBooks">
+            <div class="book-cover">
+              <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
+              <div class="book-overlay">
+               <button class="heart-btn" 
+                        [class.liked]="book.liked"
+                        (click)="toggleFavorite(book)"
+                        title="{{ book.liked ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                  {{ book.liked ? '❤️' : '🤍' }}
+                </button>
+              </div>
+            </div>
+            <div class="book-info">
+              <h3>{{ book.title }}</h3>
+              <p class="book-author">{{ book.author }}</p>
+              <div class="progress-section">
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="book.progress"
+                       [style.background-color]="getProgressColor(book.progress)">
+                  </div>
+                </div>
+                <span class="progress-text">{{ book.progress }}%</span>
+              </div>
+              <div class="book-status">
+                <span class="status-badge" [class.completed]="book.progress === 100">
+                  {{ book.progress === 100 ? 'Completed' : 'In Progress' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div class="pagination" *ngIf="totalPages > 1">
+          <button (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button
+            *ngFor="let page of pageNumbers"
+            (click)="changePage(page)"
+            [class.active]="currentPage === page"
+          >
+            {{ page }}
+          </button>
+          <button (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Template pour bibliothèque vide -->
+      <ng-template #emptyLibrary>
+        <div class="empty-library-state">
+          <div class="empty-icon">
+            📚
+          </div>
+          <h3 class="empty-title">Your library is empty</h3>
+          <p class="empty-message">
+            <span *ngIf="books.length === 0">
+              Start building your personal library by adding some books!
+            </span>
+            <span *ngIf="books.length > 0">
+              No books match your current filters. Try adjusting your search criteria.
+            </span>
+          </p>
+          <button routerLink="/addbook" class="add-book-btn" *ngIf="books.length === 0">
+            <i class="fas fa-plus"></i>
+            Add Your First Book
+          </button>
+          
+        </div>
+      </ng-template>
+    </div>
+  </section>
+</div>
