@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router'; 
 import { BookService } from 'src/app/service/book.service';
 import { Book } from 'src/core/models/Book';
 
@@ -30,9 +31,18 @@ export class LibraryComponent implements OnInit {
     favoriteBooks: 0
   };
 
-  constructor(private bookService: BookService) {}
+  constructor(
+    private bookService: BookService,
+    private route: ActivatedRoute 
+  ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe(params => {
+      if (params['filter']) {
+        this.selectedStatus = params['filter'];
+      }
+    });
+
     this.bookService.getAllBooks().subscribe(data => {
       this.books = data.filter(book => book.status === true);
       this.books.sort((a, b) => {
@@ -47,6 +57,7 @@ export class LibraryComponent implements OnInit {
       });
       this.categories = Array.from(categorySet).sort();
       this.calculateReadingStats();
+      this.applyFilters();
     });
   }
 

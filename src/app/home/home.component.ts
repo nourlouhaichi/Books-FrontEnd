@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { BookService } from 'src/app/service/book.service';
 import { Book } from 'src/core/models/Book';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +11,9 @@ import { Book } from 'src/core/models/Book';
 export class HomeComponent implements OnInit {
   recentBooks: Book[] = [];
   favoriteBooks: Book[] = [];
+  currentlyReadingBooks: Book[] = []; 
+  allBooks: Book[] = [];
+  
   readingStats = {
     totalBooks: 0,
     booksInProgress: 0,
@@ -16,67 +21,62 @@ export class HomeComponent implements OnInit {
     favoriteBooks: 0
   };
 
-  ngOnInit() {
-    this.loadMockData();
+  constructor(
+    private bookService: BookService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.loadBooks();
   }
 
-  loadMockData() {
-    // Mock data pour la démonstration
-    this.recentBooks = [
-      {
-        idBook: 1,
-        title: "Le Petit Prince",
-        author: "Antoine de Saint-Exupéry",
-        cover: "https://via.placeholder.com/200x300/87CEEB/ffffff?text=Le+Petit+Prince",
-        summary: "Un conte poétique et philosophique...",
-        status: true,
-        liked: true,
-        progress: 100,
-        pages: 96,
-        start: new Date('2024-01-15'),
-        end: new Date('2024-01-20'),
-        publicationInfo: new Date(),
-        series: "Dystopian Series"
-      },
-      {
-        idBook: 2,
-        title: "1984",
-        author: "George Orwell",
-        cover: "https://via.placeholder.com/200x300/4682B4/ffffff?text=1984",
-        summary: "Un roman dystopique...",
-        status: false,
-        liked: false,
-        progress: 65,
-        pages: 328,
-        start: new Date('2024-02-01'),
-        end: new Date(),
-        publicationInfo: new Date(),
-        series: "Dystopian Series"
-      },
-      {
-        idBook: 3,
-        title: "L'Étranger",
-        author: "Albert Camus",
-        cover: "https://via.placeholder.com/200x300/5F9EA0/ffffff?text=L%27Etranger",
-        summary: "Un roman existentialiste...",
-        status: true,
-        liked: true,
-        progress: 100,
-        pages: 159,
-        start: new Date('2024-01-01'),
-        end: new Date('2024-01-10'),
-        publicationInfo: new Date(),
-        series: "Dystopian Series"
+  loadBooks(): void {
+    this.bookService.getAllBooks().subscribe({
+      next: (data) => {
+        this.allBooks = data.filter(book => book.status === true);
+        this.processBooks();
+        this.calculateReadingStats();
       }
-    ];
+    });
+  }
 
-    this.favoriteBooks = this.recentBooks.filter(book => book.liked);
-    
+  processBooks(): void {
+  const completedBooks = this.allBooks.filter(book => book.end && book.progress === 100);
+  const sortedCompletedBooks = [...completedBooks].sort((a, b) => {
+    return new Date(b.end).getTime() - new Date(a.end).getTime();
+  });
+  this.recentBooks = sortedCompletedBooks.slice(0, 4);
+
+  const inProgressBooks = this.allBooks.filter(book => book.progress < 100);
+  this.currentlyReadingBooks = [...inProgressBooks]
+    .sort((a, b) => b.progress - a.progress) 
+    .slice(0, 4); 
+
+  this.favoriteBooks = this.allBooks
+    .filter(book => book.liked)
+    .sort((a, b) => {
+      if (a.end && b.end) {
+        return new Date(b.end).getTime() - new Date(a.end).getTime();
+      }
+      if (a.end && !b.end) {
+        return -1;
+      }
+      if (!a.end && b.end) {
+        return 1;
+      }
+      return a.title.localeCompare(b.title);
+    })
+    .slice(0, 6);
+}
+
+  calculateReadingStats(): void {
     this.readingStats = {
-      totalBooks: this.recentBooks.length,
-      booksInProgress: this.recentBooks.filter(book => !book.status).length,
-      pagesRead: this.recentBooks.reduce((total, book) => total + Math.round(book.pages * (book.progress / 100)), 0),
-      favoriteBooks: this.favoriteBooks.length
+      totalBooks: this.allBooks.length,
+      booksInProgress: this.allBooks.filter(book => book.progress < 100).length,
+      pagesRead: this.allBooks.reduce((total, book) => {
+        return total + Math.round(book.pages * (book.progress / 100));
+      }, 0),
+      favoriteBooks: this.allBooks.filter(book => book.liked).length
     };
   }
 
@@ -84,5 +84,80 @@ export class HomeComponent implements OnInit {
     if (progress >= 80) return '#4CAF50';
     if (progress >= 50) return '#FF9800';
     return '#87CEEB';
+  }
+
+  toggleFavorite(book: Book): void {
+    this.bookService.addToFavorites(book.idBook).subscribe({
+      next: (updatedBook) => {
+        this.updateBookInArrays(updatedBook);
+        this.calculateReadingStats();
+      },
+      error: (error) => {
+        console.error('Erreur lors de la mise à jour des favoris:', error);
+      }
+    });
+  }
+
+  private updateBookInArrays(updatedBook: Book): void {
+    const allBooksIndex = this.allBooks.findIndex(b => b.idBook === updatedBook.idBook);
+    if (allBooksIndex !== -1) {
+      this.allBooks[allBooksIndex] = updatedBook;
+    }
+
+    const recentBooksIndex = this.recentBooks.findIndex(b => b.idBook === updatedBook.idBook);
+    if (recentBooksIndex !== -1) {
+      this.recentBooks[recentBooksIndex] = updatedBook;
+    }
+
+    const currentlyReadingIndex = this.currentlyReadingBooks.findIndex(b => b.idBook === updatedBook.idBook);
+    if (currentlyReadingIndex !== -1) {
+      this.currentlyReadingBooks[currentlyReadingIndex] = updatedBook;
+    }
+
+    const favoriteBooksIndex = this.favoriteBooks.findIndex(b => b.idBook === updatedBook.idBook);
+    if (favoriteBooksIndex !== -1) {
+      if (updatedBook.liked) {
+        this.favoriteBooks[favoriteBooksIndex] = updatedBook;
+      } else {
+        this.favoriteBooks.splice(favoriteBooksIndex, 1);
+      }
+    } else if (updatedBook.liked) {
+      this.favoriteBooks.unshift(updatedBook);
+      this.favoriteBooks = this.favoriteBooks.slice(0, 6); 
+    }
+  }
+
+  navigateToAddBook(): void {
+    this.router.navigate(['/addbook']);
+  }
+
+  navigateToBooks(): void {
+    this.router.navigate(['/books']);
+  }
+
+  navigateToLibrary(): void {
+    this.router.navigate(['/library']);
+  }
+  
+  navigateToStats(): void {
+    this.router.navigate(['/statistics']);
+  }
+
+  navigateToFavoritesInLibrary(): void {
+    this.router.navigate(['/library'], { 
+      queryParams: { filter: 'favorites' } 
+    });
+  }
+
+  navigateToCompletedInLibrary(): void {
+    this.router.navigate(['/library'], { 
+      queryParams: { filter: 'completed' } 
+    });
+  }
+
+  navigateToInProgressInLibrary(): void {
+    this.router.navigate(['/library'], { 
+      queryParams: { filter: 'inprogress' } 
+    });
   }
 }

@@ -1,125 +1,169 @@
 <!-- home.component.html -->
-<div class="home-container ">
+<div class="home-container">
   <!-- Hero Section -->
   <hr><br>
-  <section class="hero-section sky-background ">
-  <div class="hero-content">
-    <h1>Welcome to your reading world !</h1>
-    <p>Organize, track, and discover your next favorite books with BookMark</p>
-    <div class="hero-actions">
-      <button routerLink="/addbook" class="btn-primary">Add a book</button>
-      <button class="btn-secondary" routerLink="/books">Explore books</button>
-    </div>
-  </div>
-  <div class="hero-image sky-background">
-  <img src="assets/images/books.png" alt="Reading Illustration" class="hero-illustration" width="400" height="400" />
-</div>
-
-</section>
-
-<!-- Statistics Section -->
-<section class="stats-section">
-  <h2>Your Reading Statistics</h2>
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon">📚</div>
-      <div class="stat-number">{{ readingStats.totalBooks }}</div>
-      <div class="stat-label">Total Books</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📖</div>
-      <div class="stat-number">{{ readingStats.booksInProgress }}</div>
-      <div class="stat-label">Currently Reading</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">📄</div>
-      <div class="stat-number">{{ readingStats.pagesRead }}</div>
-      <div class="stat-label">Pages Read</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon">❤️</div>
-      <div class="stat-number">{{ readingStats.favoriteBooks }}</div>
-      <div class="stat-label">Favorite Books</div>
-    </div>
-  </div>
-</section>
-
-<!-- Recent Books Section -->
-<section class="recent-books-section">
-  <div class="section-header">
-    <h2>Recent Reads</h2>
-    <a href="#" routerLink="/library" class="view-all-link">View All</a>
-  </div>
-  <div class="books-grid">
-    <div class="book-card" *ngFor="let book of recentBooks">
-      <div class="book-cover">
-        <img [src]="book.cover" [alt]="book.title">
-        <div class="book-overlay">
-          <button class="heart-btn" [class.liked]="book.liked">
-            {{ book.liked ? '❤️' : '🤍' }}
-          </button>
-        </div>
+  <section class="hero-section sky-background">
+    <div class="hero-content">
+      <h1>Welcome to your reading world !</h1>
+      <p>Organize, track, and discover your next favorite books with BookMark</p>
+      <div class="hero-actions">
+        <button (click)="navigateToAddBook()" class="btn-primary">Add a book</button>
+        <button class="btn-secondary" (click)="navigateToBooks()">Explore books</button>
       </div>
-      <div class="book-info">
-        <h3>{{ book.title }}</h3>
-        <p class="book-author">{{ book.author }}</p>
-        <div class="progress-section">
-          <div class="progress-bar">
-            <div class="progress-fill" 
-                 [style.width.%]="book.progress"
-                 [style.background-color]="getProgressColor(book.progress)">
+    </div>
+    <div class="hero-image sky-background">
+      <img src="assets/images/books.png" alt="Reading Illustration" class="hero-illustration" width="400" height="400" />
+    </div>
+  </section>
+
+  <!-- Statistics Section -->
+  <section class="stats-section">
+    <h2>Your Reading Statistics</h2>
+    <div class="stats-grid">
+      <div class="stat-card" routerLink="/library">
+        <div class="stat-icon">📚</div>
+        <div class="stat-number">{{ readingStats.totalBooks }}</div>
+        <div class="stat-label">Total Books</div>
+      </div>
+      <div class="stat-card" (click)="navigateToInProgressInLibrary()">
+        <div class="stat-icon">📖</div>
+        <div class="stat-number">{{ readingStats.booksInProgress }}</div>
+        <div class="stat-label">Currently Reading</div>
+      </div>
+      <div class="stat-card" (click)="navigateToCompletedInLibrary()">
+        <div class="stat-icon">📄</div>
+        <div class="stat-number">{{ readingStats.pagesRead }}</div>
+        <div class="stat-label">Pages Read</div>
+      </div>
+      <div class="stat-card" (click)="navigateToFavoritesInLibrary()">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-number">{{ readingStats.favoriteBooks }}</div>
+        <div class="stat-label">Favorite Books</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Currently Reading Section -->
+  <section class="recent-books-section">
+    <div class="section-header">
+      <h2>Currently Reading</h2>
+      <a (click)="navigateToInProgressInLibrary()" class="view-all-link" style="cursor: pointer;">View All</a>
+    </div>
+    <div class="books-grid" *ngIf="currentlyReadingBooks.length > 0; else noCurrentlyReadingMessage">
+      <div class="book-card" *ngFor="let book of currentlyReadingBooks">
+        <div class="book-cover">
+         <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
+        </div>
+        <div class="book-info">
+          <h3>{{ book.title }}</h3>
+          <p class="book-author">{{ book.author }}</p>
+          <div class="progress-section">
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="book.progress"
+                   [style.background-color]="getProgressColor(book.progress)">
+              </div>
             </div>
+            <span class="progress-text">{{ book.progress }}%</span>
           </div>
-          <span class="progress-text">{{ book.progress }}%</span>
-        </div>
-        <div class="book-status">
-          <span class="status-badge" [class.completed]="book.status">
-            {{ book.status ? 'Completed' : 'In Progress' }}
-          </span>
+          <div class="book-status">
+            <span class="status-badge in-progress">
+              In Progress
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+    <ng-template #noCurrentlyReadingMessage>
+      <div class="no-books-message">
+        <p>No books currently being read. Start reading a book to see it here!</p>
+        <button class="btn-primary" (click)="navigateToLibrary()">View Your Library</button>
+      </div>
+    </ng-template>
+  </section>
 
-<!-- Favorites Section -->
-<section class="favorites-section" *ngIf="favoriteBooks.length > 0">
-  <div class="section-header">
-    <h2>Your Favorite Books</h2>
-    <a href="#" routerLink="/favorites" class="view-all-link">View All</a>
-  </div>
-  <div class="favorites-grid">
-    <div class="favorite-card" *ngFor="let book of favoriteBooks">
-      <img [src]="book.cover" [alt]="book.title">
-      <div class="favorite-info">
-        <h4>{{ book.title }}</h4>
-        <p>{{ book.author }}</p>
+  <!-- Recent Books Section -->
+  <section class="recent-books-section">
+    <div class="section-header">
+      <h2>Recently Completed</h2>
+      <a (click)="navigateToCompletedInLibrary()" class="view-all-link" style="cursor: pointer;">View All</a>
+    </div>
+    <div class="books-grid" *ngIf="recentBooks.length > 0; else noBooksMessage">
+      <div class="book-card" *ngFor="let book of recentBooks">
+        <div [routerLink]="['/books', book.idBook]">
+        <div class="book-cover">
+         <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
+        </div>
+        <div class="book-info">
+          <h3>{{ book.title }}</h3>
+          <p class="book-author">{{ book.author }}</p>
+          <div class="progress-section">
+            <div class="progress-bar">
+              <div class="progress-fill" 
+                   [style.width.%]="book.progress"
+                   [style.background-color]="getProgressColor(book.progress)">
+              </div>
+            </div>
+            <span class="progress-text">{{ book.progress }}%</span>
+          </div>
+          <div class="book-status">
+            <span class="status-badge completed">
+              Completed
+            </span>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+    <ng-template #noBooksMessage>
+      <div class="no-books-message">
+        <p>No completed books yet. Finish reading a book to see it here!</p>
+        <button class="btn-primary" (click)="navigateToLibrary()">View Your Library</button>
+      </div>
+    </ng-template>
+  </section>
 
-<!-- Quick Actions Section -->
-<section class="quick-actions-section">
-  <h2>Quick Actions</h2>
-  <div class="actions-grid">
-    <div class="action-card">
-      <div class="action-icon">➕</div>
-      <h3>Add a Book</h3>
-      <p>Add a new book to your library</p>
-      <button class="action-btn">Add</button>
+  <!-- Favorites Section -->
+  <section class="favorites-section" *ngIf="favoriteBooks.length > 0">
+    <div class="section-header">
+      <h2>Your Favorite Books</h2>
+        <a (click)="navigateToFavoritesInLibrary()" class="view-all-link" style="cursor: pointer;">View All</a>
     </div>
-    <div class="action-card">
-      <div class="action-icon">🔍</div>
-      <h3>Search</h3>
-      <p>Quickly find a book in your collection</p>
-      <button class="action-btn">Search</button>
+    <div class="favorites-grid">
+      <div class="favorite-card" *ngFor="let book of favoriteBooks">
+        <div [routerLink]="['/books', book.idBook]">
+       <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
+        <div class="favorite-info">
+          <h4>{{ book.title }}</h4>
+          <p>{{ book.author }}</p>
+        </div>
+        </div>
+      </div>
     </div>
-    <div class="action-card">
-      <div class="action-icon">📊</div>
-      <h3>Statistics</h3>
-      <p>Check your detailed reading statistics</p>
-      <button class="action-btn">View Stats</button>
+  </section>
+
+  <!-- Quick Actions Section -->
+  <section class="quick-actions-section">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <div class="action-card" (click)="navigateToAddBook()">
+        <div class="action-icon">➕</div>
+        <h3>Add a Book</h3>
+        <p>Add a new book to your library</p>
+        <button class="action-btn" (click)="navigateToAddBook()">Add</button>
+      </div>
+      <div class="action-card" routerLink="/books">
+        <div class="action-icon">🔍</div>
+        <h3>Search</h3>
+        <p>Quickly find a book</p>
+        <button class="action-btn" routerLink="/books">Search</button>
+      </div>
+      <div class="action-card" (click)="navigateToStats()">
+        <div class="action-icon">📊</div>
+        <h3>Statistics</h3>
+        <p>Check your detailed reading statistics</p>
+        <button class="action-btn" (click)="navigateToStats()">View Stats</button>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>

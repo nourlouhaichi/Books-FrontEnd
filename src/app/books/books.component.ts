@@ -15,7 +15,7 @@ export class BooksComponent implements OnInit {
   booksPerPage: number = 15;
   searchTerm: string = '';
   selectedCategory: string = '';
-  categories: string[] = []; 
+  categories: string[] = [];
 
   constructor(private bookService: BookService) {}
 
@@ -31,6 +31,9 @@ export class BooksComponent implements OnInit {
         });
       });
       this.categories = Array.from(categorySet).sort();
+      
+      // Appliquer le tri alphabétique initial
+      this.applyFilters();
     });
   }
 
@@ -47,19 +50,21 @@ export class BooksComponent implements OnInit {
     const cat = this.selectedCategory;
 
     this.filteredBooks = this.books.filter(book => {
-
-      const matchesText = term === '' || 
-        book.title.toLowerCase().includes(term) || 
+      const matchesText = term === '' ||
+        book.title.toLowerCase().includes(term) ||
         book.author.toLowerCase().includes(term);
 
-
-      const matchesCategory = cat === '' || 
+      const matchesCategory = cat === '' ||
         book.categories?.some(c => c.name === cat);
 
       return matchesText && matchesCategory;
     });
 
-    this.currentPage = 1; 
+    this.filteredBooks.sort((a, b) => 
+      a.title.toLowerCase().localeCompare(b.title.toLowerCase())
+    );
+
+    this.currentPage = 1;
   }
 
   get paginatedBooks(): Book[] {
