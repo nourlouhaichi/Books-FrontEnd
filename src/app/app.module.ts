@@ -12,6 +12,7 @@ import { BookDetailsComponent } from './book-details/book-details.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { AddBookComponent } from './add-book/add-book.component';
 import { LibraryComponent } from './library/library.component';
+import { StatisticsComponent } from './statistics/statistics.component';
 
 
 @NgModule({
@@ -24,7 +25,8 @@ import { LibraryComponent } from './library/library.component';
     BookDetailsComponent,
     NotFoundComponent,
     AddBookComponent,
-    LibraryComponent
+    LibraryComponent,
+    StatisticsComponent
   ],
   imports: [
     BrowserModule,

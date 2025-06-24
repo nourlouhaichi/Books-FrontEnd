@@ -1,0 +1,196 @@
+<!-- home.component.html -->
+<div class="home-container">
+  <!-- Hero Section -->
+  <hr><br>
+<div class="statistics-container">
+
+  <!-- General Statistics -->
+  <section class="general-stats-section">
+    <h2>Overview</h2>
+    <div class="stats-grid">
+      <div class="stat-card large" routerLink="/library">
+        <div class="stat-icon"><i class="fas fa-book" style="color: #4A90E2;"></i></div>
+        <div class="stat-number">{{ generalStats.totalBooks }}</div>
+        <div class="stat-label">Books in Library</div>
+      </div>
+      <div class="stat-card large completed" (click)="navigateToCompletedInLibrary()">
+        <div class="stat-icon"><i class="fas fa-check-circle" style="color: #30b022;"></i></div>
+        <div class="stat-number">{{ generalStats.completedBooks }}</div>
+        <div class="stat-label">Books Completed</div>
+      </div>
+      <div class="stat-card large in-progress" (click)="navigateToInProgressInLibrary()">
+        <div class="stat-icon"><i class="fas fa-book-open" style="color: #df8b2b;"></i></div>
+        <div class="stat-number">{{ generalStats.booksInProgress }}</div>
+        <div class="stat-label">Currently Reading</div>
+      </div>
+      <div class="stat-card large favorites" (click)="navigateToFavoritesInLibrary()">
+        <div class="stat-icon"><i class="fas fa-heart" style="color: #ec3143;"></i></div>
+        <div class="stat-number">{{ generalStats.favoriteBooks }}</div>
+        <div class="stat-label">Favorites</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reading Progress -->
+  <section class="progress-stats-section">
+    <div class="section-grid">
+      <div class="progress-card">
+        <h3>Pages Read</h3>
+        <div class="progress-content">
+          <div class="large-number">{{ generalStats.pagesRead }}</div>
+          <div class="progress-details">
+            out of {{ generalStats.totalPages }} total pages
+          </div>
+          <div class="progress-bar-large">
+            <div class="progress-fill-large" 
+                 [style.width.%]="(generalStats.pagesRead / generalStats.totalPages) * 100"
+                 [style.background-color]="getProgressColor((generalStats.pagesRead / generalStats.totalPages) * 100)">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="progress-card">
+        <h3>Average Progress</h3>
+        <div class="progress-content">
+          <div class="large-number">{{ generalStats.averageProgress }}%</div>
+          <div class="circular-progress">
+            <svg class="progress-ring" width="120" height="120">
+              <circle class="progress-ring__circle-bg" stroke="#e2e8f0" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+              <circle class="progress-ring__circle" 
+                      [attr.stroke-dasharray]="326.7" 
+                      [attr.stroke-dashoffset]="326.7 - (326.7 * generalStats.averageProgress) / 100"
+                      stroke="#3182ce" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+            </svg>
+            <div class="progress-text-center">{{ generalStats.averageProgress }}%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reading Goals -->
+  <section class="goals-section">
+    <h2>Annual Reading Goal</h2>
+    <div class="goal-card">
+      <div class="goal-progress">
+        <div class="goal-numbers">
+          <span class="current-goal">{{ readingGoals.current }}</span>
+          <span class="goal-separator">/</span>
+          <span class="target-goal">{{ readingGoals.target }}</span>
+          <span class="goal-label">books</span>
+        </div>
+        <div class="goal-bar">
+          <div class="goal-fill" 
+               [style.width.%]="readingGoals.percentage"
+               [class.goal-achieved]="readingGoals.percentage >= 100">
+          </div>
+        </div>
+        <div class="goal-percentage">{{ readingGoals.percentage }}% of goal reached</div>
+      </div>
+      <div class="goal-actions">
+        <button class="btn-goal" (click)="updateReadingGoal(12)">12 books/year</button>
+        <button class="btn-goal" (click)="updateReadingGoal(24)">24 books/year</button>
+        <button class="btn-goal" (click)="updateReadingGoal(52)">52 books/year</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Monthly Statistics -->
+  <section class="monthly-stats-section" *ngIf="monthlyStats.length > 0">
+    <h2>Monthly Statistics</h2>
+    <div class="monthly-grid">
+      <div class="month-card" *ngFor="let month of monthlyStats">
+        <div class="month-name">{{ month.month }}</div>
+        <div class="month-stats">
+          <div class="month-stat">
+            <span class="month-number">{{ month.booksCompleted }}</span>
+            <span class="month-label">books</span>
+          </div>
+          <div class="month-stat">
+            <span class="month-number">{{ month.pagesRead }}</span>
+            <span class="month-label">pages</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Category Statistics -->
+  <section class="category-stats-section" *ngIf="categoryStats.length > 0">
+    <h2>Category Breakdown</h2>
+    <div class="category-grid">
+      <div class="category-item" *ngFor="let category of categoryStats">
+        <div class="category-info">
+          <div class="category-name">{{ category.name }}</div>
+          <div class="category-count">{{ category.count }} books</div>
+        </div>
+        <div class="category-bar">
+          <div class="category-fill" [style.width.%]="category.percentage"></div>
+        </div>
+        <div class="category-percentage">{{ category.percentage }}%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Lists -->
+  <section class="top-lists-section">
+    <div class="lists-grid">
+      <!-- Longest Books -->
+      <div class="list-card" *ngIf="longestBooks.length > 0">
+        <h3>Longest Books</h3>
+        <div class="book-list">
+          <div class="book-item" *ngFor="let book of longestBooks; let i = index" [routerLink]="['/books', book.idBook]">
+            <div class="book-rank">{{ i + 1 }}</div>
+            <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" 
+                 alt="{{ book.title }}" class="book-thumb"/>
+            <div class="book-details">
+              <div class="book-title">{{ book.title }}</div>
+              <div class="book-author">{{ book.author }}</div>
+              <div class="book-pages">{{ book.pages }} pages</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quickest Reads -->
+      <div class="list-card" *ngIf="quickestReads.length > 0">
+        <h3>Quickest Reads</h3>
+        <div class="book-list">
+          <div class="book-item" *ngFor="let book of quickestReads; let i = index " [routerLink]="['/books', book.idBook]">
+            <div class="book-rank">{{ i + 1 }}</div>
+            <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" 
+                 alt="{{ book.title }}" class="book-thumb"/>
+            <div class="book-details">
+              <div class="book-title">{{ book.title }}</div>
+              <div class="book-author">{{ book.author }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Activity -->
+  <section class="recent-activity-section" *ngIf="recentActivity.length > 0">
+    <h2>Recent Activity</h2>
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let book of recentActivity" [routerLink]="['/books', book.idBook]">
+        <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" 
+             alt="{{ book.title }}" class="activity-thumb"/>
+        <div class="activity-details">
+          <div class="activity-title">{{ book.title }}</div>
+          <div class="activity-author">{{ book.author }}</div>
+          <div class="activity-status">
+            <span *ngIf="book.progress === 100" class="status-completed">Completed</span>
+            <span *ngIf="book.progress < 100" class="status-reading">In Progress ({{ book.progress }}%)</span>
+          </div>
+        </div>
+        <div class="activity-date">
+          {{ book.end ? (book.end | date:'dd/MM/yyyy') : (book.start | date:'dd/MM/yyyy') }}
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</div>

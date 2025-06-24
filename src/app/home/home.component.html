@@ -21,22 +21,22 @@
     <h2>Your Reading Statistics</h2>
     <div class="stats-grid">
       <div class="stat-card" routerLink="/library">
-        <div class="stat-icon">📚</div>
+        <div class="stat-icon"><i class="fas fa-book" style="color: #4A90E2;"></i></div>
         <div class="stat-number">{{ readingStats.totalBooks }}</div>
         <div class="stat-label">Total Books</div>
       </div>
       <div class="stat-card" (click)="navigateToInProgressInLibrary()">
-        <div class="stat-icon">📖</div>
+        <div class="stat-icon"><i class="fas fa-book-open" style="color: #df8b2b;"></i></div>
         <div class="stat-number">{{ readingStats.booksInProgress }}</div>
         <div class="stat-label">Currently Reading</div>
       </div>
       <div class="stat-card" (click)="navigateToCompletedInLibrary()">
-        <div class="stat-icon">📄</div>
+        <div class="stat-icon"><i class="fas fa-file-alt" style="color: #30b022;"></i></div>
         <div class="stat-number">{{ readingStats.pagesRead }}</div>
         <div class="stat-label">Pages Read</div>
       </div>
       <div class="stat-card" (click)="navigateToFavoritesInLibrary()">
-        <div class="stat-icon">❤️</div>
+        <div class="stat-icon"><i class="fas fa-heart" style="color: #ec3143;"></i></div>
         <div class="stat-number">{{ readingStats.favoriteBooks }}</div>
         <div class="stat-label">Favorite Books</div>
       </div>
@@ -143,27 +143,38 @@
   </section>
 
   <!-- Quick Actions Section -->
-  <section class="quick-actions-section">
-    <h2>Quick Actions</h2>
-    <div class="actions-grid">
-      <div class="action-card" (click)="navigateToAddBook()">
-        <div class="action-icon">➕</div>
-        <h3>Add a Book</h3>
-        <p>Add a new book to your library</p>
-        <button class="action-btn" (click)="navigateToAddBook()">Add</button>
+<section class="quick-actions-section">
+  <h2>Quick Actions</h2>
+  <div class="actions-grid">
+    
+    <!-- Add Book -->
+    <div class="action-card" (click)="navigateToAddBook()">
+      <div class="action-icon">
+        <i class="fas fa-plus-circle" style="color: #4A90E2;"></i>
       </div>
-      <div class="action-card" routerLink="/books">
-        <div class="action-icon">🔍</div>
-        <h3>Search</h3>
-        <p>Quickly find a book</p>
-        <button class="action-btn" routerLink="/books">Search</button>
-      </div>
-      <div class="action-card" (click)="navigateToStats()">
-        <div class="action-icon">📊</div>
-        <h3>Statistics</h3>
-        <p>Check your detailed reading statistics</p>
-        <button class="action-btn" (click)="navigateToStats()">View Stats</button>
-      </div>
+      <h3>Add a Book</h3>
+      <p>Add a new book to your library</p>
     </div>
-  </section>
+
+    <!-- Search -->
+    <div class="action-card" routerLink="/books">
+      <div class="action-icon">
+        <i class="fas fa-search" style="color: #27ae60;"></i>
+      </div>
+      <h3>Search</h3>
+      <p>Quickly find a book</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="action-card" (click)="navigateToStats()">
+      <div class="action-icon">
+        <i class="fas fa-chart-bar" style="color: #f39c12;"></i>
+      </div>
+      <h3>Statistics</h3>
+      <p>Check your detailed reading statistics</p>
+    </div>
+
+  </div>
+</section>
+
 </div>
