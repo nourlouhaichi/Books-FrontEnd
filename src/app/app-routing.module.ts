@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { AddBookComponent } from './add-book/add-book.component';
 import { LibraryComponent } from './library/library.component';
 import { StatisticsComponent } from './statistics/statistics.component';
+import { ProgressComponent } from './progress/progress.component';
 
 const routes: Routes = [
   { path: "", redirectTo: "home", pathMatch: 'full' },
@@ -17,6 +18,7 @@ const routes: Routes = [
   { path: 'addbook', component: AddBookComponent },
   { path: 'library', component: LibraryComponent },
   { path: 'statistics', component: StatisticsComponent },
+  { path: 'progress/:id', component: ProgressComponent },
   { path: '**', component: NotFoundComponent }
 ];
 

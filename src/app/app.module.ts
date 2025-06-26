@@ -13,6 +13,7 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { AddBookComponent } from './add-book/add-book.component';
 import { LibraryComponent } from './library/library.component';
 import { StatisticsComponent } from './statistics/statistics.component';
+import { ProgressComponent } from './progress/progress.component';
 
 
 @NgModule({
@@ -26,7 +27,8 @@ import { StatisticsComponent } from './statistics/statistics.component';
     NotFoundComponent,
     AddBookComponent,
     LibraryComponent,
-    StatisticsComponent
+    StatisticsComponent,
+    ProgressComponent
   ],
   imports: [
     BrowserModule,

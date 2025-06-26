@@ -20,7 +20,7 @@ export class AddBookComponent implements OnInit, OnDestroy {
   totalSteps: number = 2;
   isUploading: boolean = false;
 
-  private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  private readonly MAX_FILE_SIZE = 5 * 1024 * 1024; 
   private readonly VALID_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
 
   constructor(
@@ -202,7 +202,6 @@ onSubmit(): void {
     status: true
   };
 
-  // Utiliser les noms des catégories au lieu des IDs
   const categoryNames = this.getSelectedCategoryNames();
 
   if (this.coverFile) {

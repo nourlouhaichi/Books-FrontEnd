@@ -45,7 +45,7 @@
                 </button>
               </div>
             </div>
-            <div class="book-info">
+            <div class="book-info" [routerLink]="['/progress', book.idBook]">
               <h3>{{ book.title }}</h3>
               <p class="book-author">{{ book.author }}</p>
               <div class="progress-section">

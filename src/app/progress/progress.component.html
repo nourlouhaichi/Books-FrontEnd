@@ -1,0 +1,302 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <hr><br>
+  <div class="progress-container">
+    <!-- Header Section -->
+    <div class="header-section">
+      <div class="book-info-card">
+        <div class="book-cover">
+          <img [src]="'http://localhost:8089/book-service/book/uploads/' + book?.cover" alt="{{ book?.title }}" />
+        </div>
+        <div class="book-details">
+          <h1 class="book-title">{{ book?.title }}</h1>
+          <p class="book-author">{{ book?.author }}</p>
+
+          <div class="book-meta">
+            <span class="meta-item">{{ book?.progress }}/{{ book?.pages }} pages</span>
+            <span class="meta-item" *ngIf="book?.start">Started {{ book?.start | date: 'longDate' }}</span>
+            <span class="meta-item" *ngIf="book?.end">Finished {{ book?.end | date: 'longDate' }}</span>
+          </div>
+
+          <div class="categories" *ngIf="book?.categories?.length">
+            <span class="category-badge" *ngFor="let cat of book?.categories">
+              {{ cat.name }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-content" *ngIf="!loading && book">
+      <!-- Left Sidebar -->
+      <div class="sidebar">
+        <!-- Progress Card -->
+        <div class="progress-card">
+          <h3>Progress</h3>
+          <div class="progress-circle">
+            <div class="circle-bg">
+              <div class="circle-inner">
+                <span class="progress-percentage">{{ getBookProgressPercentage().toFixed(0) }}%</span>
+                <span class="progress-label">{{ book.status ? 'Finished' : 'In Progress' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-content">
+              <span class="stat-number">{{ getReadingStreak() }}</span>
+              <span class="stat-label">Day Streak</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-content">
+              <span class="stat-number">{{ getPagesPerDay() }}</span>
+              <span class="stat-label">Pages/Day</span>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-content">
+              <span class="stat-number">{{ getReadingDays() }}</span>
+              <span class="stat-label">Reading Days</span>
+            </div>
+          </div>
+
+          <div class="stat-card" *ngIf="book?.liked !== undefined">
+            <div class="stat-icon">{{ book.liked ? '❤️' : '👍' }}</div>
+            <div class="stat-content">
+              <span class="stat-number">{{ book.liked ? 'Liked' : 'Disliked' }}</span>
+              <span class="stat-label">Rating</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Content Area -->
+      <div class="content-area">
+
+        <!-- Page Update Section -->
+        <div class="section-card" *ngIf="!book?.status">
+          <div class="section-header">
+            <h3 class="section-title">Update Progress</h3>
+          </div>
+          <div class="page-update">
+            <label for="currentPage">Current Page:</label>
+            <input
+              type="number"
+              id="currentPage"
+              class="page-input"
+              [(ngModel)]="newTimelinePage"
+              min="1"
+              [max]="getBookPages()"
+              placeholder="Enter page"
+            />
+            <span class="page-info">of {{ getBookPages() }}</span>
+            <button class="primary-btn" (click)="confirmCurrentPage()">
+              <i class="fas fa-check"></i>
+              Update Progress
+            </button>
+          </div>
+        </div>
+
+        <!-- Book Summary -->
+        <div class="section-card" *ngIf="book?.summary">
+          <div class="section-header">
+            <h3 class="section-title">Summary</h3>
+          </div>
+          <div class="summary-content">
+            <p class="summary-text">{{ book.summary }}</p>
+          </div>
+        </div>
+
+        <!-- Reading Timeline -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">Reading Timeline</h3>
+             <button class="primary-btn" (click)="toggleAddTimelineForm()">
+                <i class="fas fa-plus"></i> Add Timeline
+              </button>
+
+                 
+          </div>     
+          
+          <!-- Add Timeline Form -->
+<form [formGroup]="formT" *ngIf="showAddTimelineForm" class="notes-form">
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="currentpage">Page:</label>
+      <input
+        id="currentpage"
+        type="number"
+        class="page-input"
+        formControlName="currentpage"
+        min="1"
+        [max]="getBookPages()"
+      />
+      <div *ngIf="formT.controls['currentpage'].invalid && (formT.controls['currentpage'].dirty || formT.controls['currentpage'].touched)">
+        <small *ngIf="formT.controls['currentpage'].errors?.['required']" style="color:red">Page is required.</small>
+        <small *ngIf="formT.controls['currentpage'].errors?.['min']" style="color:red">Minimum page is 1.</small>
+        <small *ngIf="formT.controls['currentpage'].errors?.['max']" style="color:red">Maximum page is {{ getBookPages() }}.</small>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button class="secondary-btn" (click)="toggleAddTimelineForm()">Cancel</button>
+      <button class="primary-btn" (click)="submitTimeline()" [disabled]="formT.invalid">Save Timeline</button>
+    </div>
+  </div>
+</form>
+
+
+
+          <div class="timeline" *ngIf="timelines.length > 0">
+            <div
+              class="timeline-item"
+              *ngFor="let timeline of timelines; let i = index"
+              [class.active]="i === timelines.length - 1"
+            >
+              <div class="timeline-marker">
+                <div class="timeline-dot" [style.background-color]="getProgressColor((timeline.currentpage / getBookPages()) * 100)"></div>
+                <div class="timeline-line" *ngIf="i < timelines.length - 1"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="timeline-header">
+                  <div>
+                    <div class="timeline-page">Page {{ timeline.currentpage }}</div>
+                    <div class="timeline-progress">{{ ((timeline.currentpage / getBookPages()) * 100).toFixed(1) }}% of book</div>
+                  </div>
+                  <div class="timeline-date">{{ formatDate(timeline.date) }}</div>
+                </div>
+              </div>
+              <div class="timeline-actions">
+                <button class="action-btn edit-btn" (click)="editMilestone(timeline.idTime)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn delete-btn" (click)="deleteMilestone(timeline.idTime)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="no-timeline" *ngIf="timelines.length === 0">
+            <p>No progress recorded yet. Start by updating your current page above!</p>
+          </div>
+        </div>
+
+
+
+        <!-- Edit Timeline Modal -->
+        <div class="modal" *ngIf="editingTimeline" (click)="cancelEdit()">
+          <div class="modal-content" (click)="$event.stopPropagation()">
+            <h3>Edit Milestone</h3>
+            <div class="edit-form">
+              <label for="editTimelinePage">Page:</label>
+              <input
+                type="number"
+                id="editTimelinePage"
+                class="page-input"
+                [(ngModel)]="newTimelinePage"
+                min="1"
+                [max]="getBookPages()"
+              />
+
+              <div class="modal-actions">
+                <button (click)="saveEditedMilestone()" class="primary-btn">Save</button>
+                <button (click)="cancelEdit()" class="secondary-btn">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Annotations Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <h3 class="section-title">Reading Annotations</h3>
+            <button class="primary-btn" (click)="toggleAddAnnotationForm()">
+              <i class="fas fa-plus"></i>
+              Add Annotation
+            </button>
+          </div>
+
+          <!-- Add Annotation Form -->
+          <div class="notes-form" *ngIf="showAddAnnotationForm" [formGroup]="formR">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="page">Page:</label>
+                <input
+                  id="page"
+                  type="number"
+                  class="page-input"
+                  formControlName="page"
+                  min="1"
+                  [max]="getBookPages()"
+                />
+                <div *ngIf="formR.controls['page'].invalid && (formR.controls['page'].dirty || formR.controls['page'].touched)" class="error">
+                  <small *ngIf="formR.controls['page'].errors?.['required']" style="color:red">Page is required.</small>
+                  <small *ngIf="formR.controls['page'].errors?.['min']" style="color:red">Minimum page is 1.</small>
+                  <small *ngIf="formR.controls['page'].errors?.['max']" style="color:red">Maximum page is {{ getBookPages() }}.</small>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="type">Type:</label>
+                <select id="type" class="form-select" formControlName="type">
+                  <option value="note">📝 Note</option>
+                  <option value="highlight">✨ Highlight</option>
+                  <option value="bookmark">🔖 Bookmark</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="content">Content:</label>
+              <textarea
+                id="content"
+                class="form-textarea"
+                formControlName="content"
+                placeholder="Write your annotation here..."
+              ></textarea>
+              <div style="color:red" *ngIf="formR.controls['content'].invalid && (formR.controls['content'].dirty || formR.controls['content'].touched)" class="error">
+                <small>Content is required.</small>
+              </div>
+            </div>
+
+            <br />
+            <div class="form-actions">
+              <button class="secondary-btn" (click)="toggleAddAnnotationForm()">Cancel</button>
+              <button class="primary-btn" (click)="addAnnotation()" [disabled]="formR.invalid">Save Annotation</button>
+            </div>
+          </div>
+
+          <!-- Annotations List -->
+          <div class="notes-list">
+            <div class="note-item" *ngFor="let annotation of annotations">
+              <div class="note-header">
+                <div class="note-icon">{{ getAnnotationIcon(annotation.type) }}</div>
+                <span class="note-page">{{ capitalizeFirstLetter(annotation.type) }} (page {{ annotation.page || 'N/A' }})</span>
+                <span class="note-date">{{ formatDate(annotation.created) }}</span>
+                <button class="delete-note-btn" (click)="deleteAnnotation(annotation.idReview)">
+                  <span class="sr-only">Delete Annotation</span>
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+              <div class="note-content">{{ annotation.comment }}</div>
+            </div>
+
+            <div class="no-notes" *ngIf="annotations.length === 0">
+              <p>No annotations yet. Add your first annotation!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
