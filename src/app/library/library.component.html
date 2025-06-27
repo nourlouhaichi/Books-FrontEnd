@@ -40,8 +40,13 @@
                <button class="heart-btn" 
                         [class.liked]="book.liked"
                         (click)="toggleFavorite(book)"
-                        title="{{ book.liked ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
-                  {{ book.liked ? '❤️' : '🤍' }}
+                        title="{{ book.liked ? 'Remove from favorites' : 'Add to favorites' }}">
+                              <i
+                class="fas fa-heart"
+                [ngStyle]="{ color: book.liked ? '#ec3143' : '#a8a8a8' }"
+              ></i>
+
+
                 </button>
               </div>
             </div>
@@ -55,7 +60,7 @@
                        [style.background-color]="getProgressColor(book.progress)">
                   </div>
                 </div>
-                <span class="progress-text">{{ book.progress }}%</span>
+                <span class="progress-text">{{ book.progress.toFixed(0) }}%</span>
               </div>
               <div class="book-status">
                 <span class="status-badge" [class.completed]="book.progress === 100">

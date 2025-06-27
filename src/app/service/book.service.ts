@@ -64,4 +64,20 @@ export class BookService {
   addToFavorites(bookId: number): Observable<Book> {
     return this.http.put<Book>(`${this.urlBook}/addToFavorites/${bookId}`, {});
   }
+
+  updateBookStart(book: Book, start: string): Observable<Book> {
+  const params = new HttpParams().set('start', start); 
+  return this.http.put<Book>(`${this.urlBook}/updateBookStart`, book, { params });
+}
+
+  updateBookEnd(book: Book, end: string): Observable<Book> {
+    const params = new HttpParams().set('end', end);
+    return this.http.put<Book>(`${this.urlBook}/updateBookEnd`, book, { params });
+  }
+
+  updateBookProgress(book: Book, progress: number): Observable<Book> {
+    const params = new HttpParams().set('progress', progress.toString());
+    return this.http.put<Book>(`${this.urlBook}/updateBookProgress`, book, { params });
+  }
+
 }

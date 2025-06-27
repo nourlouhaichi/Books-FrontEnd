@@ -1,8 +1,6 @@
 <div class="home-container">
-  <!-- Hero Section -->
   <hr><br>
   <div class="progress-container">
-    <!-- Header Section -->
     <div class="header-section">
       <div class="book-info-card">
         <div class="book-cover">
@@ -13,7 +11,9 @@
           <p class="book-author">{{ book?.author }}</p>
 
           <div class="book-meta">
-            <span class="meta-item">{{ book?.progress }}/{{ book?.pages }} pages</span>
+            <span class="meta-item">
+              {{ (book?.progress != null && book?.pages != null ? (book?.progress! / 100 * book?.pages!) : 0) | number:'1.0-0' }}/{{ book?.pages || 0 }} pages
+            </span>
             <span class="meta-item" *ngIf="book?.start">Started {{ book?.start | date: 'longDate' }}</span>
             <span class="meta-item" *ngIf="book?.end">Finished {{ book?.end | date: 'longDate' }}</span>
           </div>
@@ -27,27 +27,23 @@
       </div>
     </div>
 
-    <!-- Main Content Grid -->
     <div class="main-content" *ngIf="!loading && book">
-      <!-- Left Sidebar -->
       <div class="sidebar">
-        <!-- Progress Card -->
         <div class="progress-card">
           <h3>Progress</h3>
           <div class="progress-circle">
-            <div class="circle-bg">
+            <div class="circle-bg" [style.background]="'conic-gradient(from 0deg, #3182ce 0deg ' + getProgressDegrees() + 'deg, #e2e8f0 ' + getProgressDegrees() + 'deg 360deg)'">
               <div class="circle-inner">
-                <span class="progress-percentage">{{ getBookProgressPercentage().toFixed(0) }}%</span>
+                <span class="progress-percentage">{{ (book.progress || 0).toFixed(0) }}%</span>
                 <span class="progress-label">{{ book.status ? 'Finished' : 'In Progress' }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Stats Grid -->
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-icon">🔥</div>
+            <div class="stat-icon"><i class="fas fa-fire" style="color: #e7691b;"></i></div>
             <div class="stat-content">
               <span class="stat-number">{{ getReadingStreak() }}</span>
               <span class="stat-label">Day Streak</span>
@@ -55,7 +51,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">📊</div>
+            <div class="stat-icon"><i class="fas fa-chart-bar" style="color: #1ccb25;"></i></div>
             <div class="stat-content">
               <span class="stat-number">{{ getPagesPerDay() }}</span>
               <span class="stat-label">Pages/Day</span>
@@ -63,7 +59,7 @@
           </div>
 
           <div class="stat-card">
-            <div class="stat-icon">⏱️</div>
+            <div class="stat-icon"><i class="fas fa-stopwatch" style="color: #d82020;"></i></div>
             <div class="stat-content">
               <span class="stat-number">{{ getReadingDays() }}</span>
               <span class="stat-label">Reading Days</span>
@@ -71,19 +67,19 @@
           </div>
 
           <div class="stat-card" *ngIf="book?.liked !== undefined">
-            <div class="stat-icon">{{ book.liked ? '❤️' : '👍' }}</div>
+            <div class="stat-icon">
+              <i style="color: #4A90E2;" class="fas" [ngClass]="book.liked ? 'fa-heart' : 'fa-thumbs-up' "></i>
+            </div>
             <div class="stat-content">
               <span class="stat-number">{{ book.liked ? 'Liked' : 'Disliked' }}</span>
               <span class="stat-label">Rating</span>
             </div>
           </div>
         </div>
+
       </div>
 
-      <!-- Right Content Area -->
       <div class="content-area">
-
-        <!-- Page Update Section -->
         <div class="section-card" *ngIf="!book?.status">
           <div class="section-header">
             <h3 class="section-title">Update Progress</h3>
@@ -107,7 +103,6 @@
           </div>
         </div>
 
-        <!-- Book Summary -->
         <div class="section-card" *ngIf="book?.summary">
           <div class="section-header">
             <h3 class="section-title">Summary</h3>
@@ -117,44 +112,38 @@
           </div>
         </div>
 
-        <!-- Reading Timeline -->
         <div class="section-card">
           <div class="section-header">
             <h3 class="section-title">Reading Timeline</h3>
-             <button class="primary-btn" (click)="toggleAddTimelineForm()">
-                <i class="fas fa-plus"></i> Add Timeline
-              </button>
-
-                 
+            <button class="primary-btn" (click)="toggleAddTimelineForm()">
+              <i class="fas fa-plus"></i> Add Timeline
+            </button>
           </div>     
           
-          <!-- Add Timeline Form -->
-<form [formGroup]="formT" *ngIf="showAddTimelineForm" class="notes-form">
-  <div class="form-row">
-    <div class="form-group">
-      <label class="form-label" for="currentpage">Page:</label>
-      <input
-        id="currentpage"
-        type="number"
-        class="page-input"
-        formControlName="currentpage"
-        min="1"
-        [max]="getBookPages()"
-      />
-      <div *ngIf="formT.controls['currentpage'].invalid && (formT.controls['currentpage'].dirty || formT.controls['currentpage'].touched)">
-        <small *ngIf="formT.controls['currentpage'].errors?.['required']" style="color:red">Page is required.</small>
-        <small *ngIf="formT.controls['currentpage'].errors?.['min']" style="color:red">Minimum page is 1.</small>
-        <small *ngIf="formT.controls['currentpage'].errors?.['max']" style="color:red">Maximum page is {{ getBookPages() }}.</small>
-      </div>
-    </div>
-    <div class="form-actions">
-      <button class="secondary-btn" (click)="toggleAddTimelineForm()">Cancel</button>
-      <button class="primary-btn" (click)="submitTimeline()" [disabled]="formT.invalid">Save Timeline</button>
-    </div>
-  </div>
-</form>
-
-
+          <form [formGroup]="formT" *ngIf="showAddTimelineForm" class="notes-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="currentpage">Page:</label>
+                <input
+                  id="currentpage"
+                  type="number"
+                  class="page-input"
+                  formControlName="currentpage"
+                  min="1"
+                  [max]="getBookPages()"
+                />
+                <div *ngIf="formT.controls['currentpage'].invalid && (formT.controls['currentpage'].dirty || formT.controls['currentpage'].touched)">
+                  <small *ngIf="formT.controls['currentpage'].errors?.['required']" style="color:red">Page is required.</small>
+                  <small *ngIf="formT.controls['currentpage'].errors?.['min']" style="color:red">Minimum page is {{ getMinAllowedPage() }}.</small>
+                  <small *ngIf="formT.controls['currentpage'].errors?.['max']" style="color:red">Maximum page is {{ getBookPages() }}.</small>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="secondary-btn" (click)="toggleAddTimelineForm()">Cancel</button>
+                <button class="primary-btn" (click)="submitTimeline()" [disabled]="formT.invalid">Save Timeline</button>
+              </div>
+            </div>
+          </form>
 
           <div class="timeline" *ngIf="timelines.length > 0">
             <div
@@ -176,9 +165,6 @@
                 </div>
               </div>
               <div class="timeline-actions">
-                <button class="action-btn edit-btn" (click)="editMilestone(timeline.idTime)">
-                  <i class="fas fa-edit"></i>
-                </button>
                 <button class="action-btn delete-btn" (click)="deleteMilestone(timeline.idTime)">
                   <i class="fas fa-trash"></i>
                 </button>
@@ -191,32 +177,6 @@
           </div>
         </div>
 
-
-
-        <!-- Edit Timeline Modal -->
-        <div class="modal" *ngIf="editingTimeline" (click)="cancelEdit()">
-          <div class="modal-content" (click)="$event.stopPropagation()">
-            <h3>Edit Milestone</h3>
-            <div class="edit-form">
-              <label for="editTimelinePage">Page:</label>
-              <input
-                type="number"
-                id="editTimelinePage"
-                class="page-input"
-                [(ngModel)]="newTimelinePage"
-                min="1"
-                [max]="getBookPages()"
-              />
-
-              <div class="modal-actions">
-                <button (click)="saveEditedMilestone()" class="primary-btn">Save</button>
-                <button (click)="cancelEdit()" class="secondary-btn">Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Annotations Section -->
         <div class="section-card">
           <div class="section-header">
             <h3 class="section-title">Reading Annotations</h3>
@@ -226,7 +186,6 @@
             </button>
           </div>
 
-          <!-- Add Annotation Form -->
           <div class="notes-form" *ngIf="showAddAnnotationForm" [formGroup]="formR">
             <div class="form-row">
               <div class="form-group">
@@ -276,7 +235,6 @@
             </div>
           </div>
 
-          <!-- Annotations List -->
           <div class="notes-list">
             <div class="note-item" *ngFor="let annotation of annotations">
               <div class="note-header">

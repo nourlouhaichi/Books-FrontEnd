@@ -64,7 +64,7 @@
                    [style.background-color]="getProgressColor(book.progress)">
               </div>
             </div>
-            <span class="progress-text">{{ book.progress }}%</span>
+            <span class="progress-text">{{ book.progress.toFixed(0) }}%</span>
           </div>
           <div class="book-status">
             <span class="status-badge in-progress">

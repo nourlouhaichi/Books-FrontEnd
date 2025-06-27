@@ -270,7 +270,7 @@ height: 48px;
 display: flex;
 align-items: center;
 justify-content: center;
-background: #f7acb3;
+background: #f1dbdd;
 border-radius: 12px;
 }
 
@@ -558,7 +558,7 @@ height: 32px;
 display: flex;
 align-items: center;
 justify-content: center;
-background: #f7acb3;
+background: #f1dbdd;
 border-radius: 8px;
 }
 
@@ -677,5 +677,30 @@ color: #2d3748;
     position: static;
     opacity: 1;
     margin-top: 8px;
+}
+
+.page-info {
+  font-size: 0.85em;
+  color: #666;
+  margin-left: 8px;
+}
+
+.page-help {
+  margin-top: 5px;
+  font-style: italic;
+  color: #888;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.error {
+  margin-top: 5px;
+}
+
+.error small {
+  display: block;
+  margin-bottom: 3px;
 }
 }

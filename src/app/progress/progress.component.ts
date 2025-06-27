@@ -16,16 +16,12 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 export class ProgressComponent implements OnInit {
   book: Book | null = null;
   timelines: Timeline[] = [];
-  reviews: Review[] = [];
   annotations: Review[] = [];
   loading = false;
   error: string | null = null;
-  bookId: number | null = null;
 
   showAddAnnotationForm = false;
   showAddTimelineForm = false;
-
-  editingTimeline: Timeline | null = null;
   newTimelinePage: number = 1;
 
   formR!: FormGroup;
@@ -65,11 +61,15 @@ export class ProgressComponent implements OnInit {
 
   initTimelineForm(): void {
     this.formT = new FormGroup({
-      currentpage: new FormControl(this.book ? Math.max(1, this.book.progress || 1) : 1, [
-        Validators.required,
-        Validators.min(1),
-        Validators.max(this.book?.pages || 9999)
-      ]),
+      currentpage: new FormControl(
+        this.getMinAllowedPage(), 
+        [
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.book?.pages || 9999),
+          (control) => this.pageValidator(control)
+        ]
+      ),
       date: new FormControl(new Date()),
       bookId: new FormControl(this.book?.idBook || 0)
     });
@@ -86,7 +86,6 @@ export class ProgressComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading timelines:', error);
         this.error = 'Unable to load progress data';
         this.loading = false;
       }
@@ -94,7 +93,6 @@ export class ProgressComponent implements OnInit {
 
     this.reviewService.getReviewsByBookId(this.book.idBook).subscribe({
       next: (reviews) => {
-        this.reviews = reviews;
         this.annotations = [...reviews];
       },
       error: (error) => {
@@ -107,18 +105,41 @@ export class ProgressComponent implements OnInit {
     if (!this.book || this.timelines.length === 0) return;
 
     const latestTimeline = this.timelines[this.timelines.length - 1];
-    const newProgress = Math.min(latestTimeline.currentpage, this.book.pages);
-    this.book.progress = newProgress;
+    const currentPage = Math.min(latestTimeline.currentpage, this.book.pages);
+    const progress = (currentPage / this.book.pages) * 100;
+
+    this.bookService.updateBookProgress(this.book, progress).subscribe({
+      next: (updatedBook) => {
+        this.book = updatedBook;
+      },
+      error: (err) => {
+        console.error('Error updating book progress:', err);
+      }
+    });
   }
 
   confirmCurrentPage(): void {
     if (!this.book) return;
 
-    if (this.newTimelinePage > 0 && this.newTimelinePage <= this.book.pages) {
-      this.addTimeline(this.newTimelinePage);
-    } else {
-      this.error = 'Please enter a valid page number between 1 and ' + this.book.pages;
+    const lastPage = this.getLastTimelinePage();
+    const minPage = this.getMinAllowedPage();
+
+    if (this.newTimelinePage <= lastPage) {
+      this.error = `La page doit être supérieure à ${lastPage} (dernière page enregistrée)`;
+      return;
     }
+
+    if (this.newTimelinePage > this.book.pages) {
+      this.error = `La page ne peut pas dépasser ${this.book.pages} (nombre total de pages)`;
+      return;
+    }
+
+    if (this.newTimelinePage < minPage) {
+      this.error = `La page doit être au minimum ${minPage}`;
+      return;
+    }
+
+    this.addTimeline(this.newTimelinePage);
   }
 
   addTimeline(page: number): void {
@@ -131,7 +152,7 @@ export class ProgressComponent implements OnInit {
       currentpage: page,
       date: new Date(),
       bookId: this.book.idBook
-    } as Timeline; // Don't include idTime as it's auto-generated
+    } as Timeline;
 
     this.timelineService.addTimeline(newTimeline).subscribe({
       next: timeline => {
@@ -142,7 +163,6 @@ export class ProgressComponent implements OnInit {
         this.error = null;
       },
       error: error => {
-        console.error('Error adding timeline:', error);
         this.error = 'Unable to add progress';
       }
     });
@@ -151,12 +171,22 @@ export class ProgressComponent implements OnInit {
   toggleAddTimelineForm(): void {
     this.showAddTimelineForm = !this.showAddTimelineForm;
     if (this.showAddTimelineForm && this.book) {
-      // Update form values when showing the form
+      const minPage = this.getMinAllowedPage();
+      
+      this.formT.get('currentpage')?.setValidators([
+        Validators.required,
+        Validators.min(minPage),
+        Validators.max(this.book.pages),
+        (control) => this.pageValidator(control)
+      ]);
+      
       this.formT.patchValue({
-        currentpage: Math.max(1, this.book.progress || 1),
+        currentpage: minPage,
         date: new Date(),
         bookId: this.book.idBook
       });
+      
+      this.formT.get('currentpage')?.updateValueAndValidity();
     }
   }
 
@@ -167,18 +197,27 @@ export class ProgressComponent implements OnInit {
     }
 
     if (this.formT.invalid) {
-      this.error = 'Please enter a valid page number.';
+      const currentPageControl = this.formT.get('currentpage');
+      if (currentPageControl?.errors) {
+        if (currentPageControl.errors['notProgressive']) {
+          this.error = `La page doit être supérieure à ${this.getLastTimelinePage()} (dernière page enregistrée)`;
+        } else if (currentPageControl.errors['min']) {
+          this.error = `La page doit être au minimum ${this.getMinAllowedPage()}`;
+        } else if (currentPageControl.errors['max']) {
+          this.error = `La page ne peut pas dépasser ${this.book.pages}`;
+        } else {
+          this.error = 'Veuillez entrer un numéro de page valide.';
+        }
+      }
       return;
     }
 
-    // Use this.formT.value as requested, but ensure we have the right data
     const timelineData = {
       ...this.formT.value,
-      date: new Date(), // Ensure we have current date
-      bookId: this.book.idBook // Ensure we have correct bookId
+      date: new Date(),
+      bookId: this.book.idBook
     };
 
-    // Don't include idTime as it's auto-generated
     const { idTime, ...timeline } = timelineData;
 
     this.timelineService.addTimeline(timeline as Timeline).subscribe({
@@ -188,61 +227,42 @@ export class ProgressComponent implements OnInit {
         this.updateBookProgress();
         this.showAddTimelineForm = false;
         this.error = null;
-        
-        // Reset form with new default values
+
+        const isoDate = new Date(createdTimeline.date).toISOString().split('T')[0];
+
+        if (this.timelines.length === 1 && this.book) {
+          this.bookService.updateBookStart(this.book, isoDate).subscribe({
+            next: (updatedBook) => {
+              this.book = updatedBook;
+            },
+            error: (err) => {
+              console.error('Error updating book start date:', err);
+            }
+          });
+        }
+
+        if (this.book && createdTimeline.currentpage === this.book.pages) {
+          this.bookService.updateBookEnd(this.book, isoDate).subscribe({
+            next: (updatedBook) => {
+              this.book = updatedBook;
+            },
+            error: (err) => {
+              console.error('Error updating book end date:', err);
+            }
+          });
+        }
+
+        const newMinPage = this.getMinAllowedPage();
         this.formT.reset({
-          currentpage: Math.max(1, this.book?.progress || 1),
+          currentpage: newMinPage,
           date: new Date(),
           bookId: this.book?.idBook
         });
       },
       error: (err) => {
-        console.error('Error saving timeline:', err);
         this.error = 'Unable to save timeline.';
       }
     });
-  }
-
-  editMilestone(timelineId: number): void {
-    const timeline = this.timelines.find(t => t.idTime === timelineId);
-    if (timeline) {
-      this.editingTimeline = { ...timeline };
-      this.newTimelinePage = timeline.currentpage;
-    }
-  }
-
-  saveEditedMilestone(): void {
-    if (this.editingTimeline && this.book) {
-      if (this.newTimelinePage < 1 || this.newTimelinePage > this.book.pages) {
-        this.error = 'Please enter a valid page number between 1 and ' + this.book.pages;
-        return;
-      }
-
-      this.editingTimeline.currentpage = this.newTimelinePage;
-      this.editingTimeline.date = new Date();
-
-      this.timelineService.updateTimeline(this.editingTimeline).subscribe({
-        next: updatedTimeline => {
-          const index = this.timelines.findIndex(t => t.idTime === updatedTimeline.idTime);
-          if (index !== -1) {
-            this.timelines[index] = updatedTimeline;
-            this.timelines.sort((a, b) => a.currentpage - b.currentpage);
-            this.updateBookProgress();
-          }
-          this.editingTimeline = null;
-          this.error = null;
-        },
-        error: error => {
-          console.error('Error updating timeline:', error);
-          this.error = 'Unable to update progress';
-        }
-      });
-    }
-  }
-
-  cancelEdit(): void {
-    this.editingTimeline = null;
-    this.error = null;
   }
 
   deleteMilestone(id: number): void {
@@ -250,10 +270,8 @@ export class ProgressComponent implements OnInit {
       next: () => {
         this.timelines = this.timelines.filter(t => t.idTime !== id);
         this.updateBookProgress();
-        console.log('Timeline deleted successfully');
       },
       error: (error) => {
-        console.error('Error deleting timeline:', error);
         this.error = 'Unable to delete timeline';
       }
     });
@@ -306,7 +324,6 @@ export class ProgressComponent implements OnInit {
         this.error = '';
       },
       error: err => {
-        console.error('Error adding annotation:', err);
         this.error = 'An error occurred while adding the annotation.';
       }
     });
@@ -325,10 +342,8 @@ export class ProgressComponent implements OnInit {
     this.reviewService.deleteReview(annotationId).subscribe({
       next: () => {
         this.annotations = this.annotations.filter(a => a.idReview !== annotationId);
-        this.reviews = this.reviews.filter(r => r.idReview !== annotationId);
       },
       error: error => {
-        console.error('Error deleting annotation:', error);
         this.error = 'Unable to delete annotation';
       }
     });
@@ -350,47 +365,47 @@ export class ProgressComponent implements OnInit {
   }
 
   getReadingStreak(): number {
-    if (this.timelines.length < 2) return this.timelines.length;
+    if (this.timelines.length === 0) return 0;
+
+    const uniqueDays = Array.from(
+      new Set(this.timelines.map(t => new Date(t.date).toISOString().split('T')[0]))
+    ).sort().reverse(); 
 
     let streak = 1;
-    const sortedTimelines = [...this.timelines].sort((a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-
-    for (let i = 1; i < sortedTimelines.length; i++) {
-      const currentDate = new Date(sortedTimelines[i - 1].date);
-      const previousDate = new Date(sortedTimelines[i].date);
-      const diffTime = Math.abs(currentDate.getTime() - previousDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays <= 1) {
+    for (let i = 1; i < uniqueDays.length; i++) {
+      const current = new Date(uniqueDays[i - 1]);
+      const previous = new Date(uniqueDays[i]);
+      const diff = (current.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24);
+      if (diff <= 1) {
         streak++;
       } else {
         break;
       }
     }
-
-    return streak;
-  }
+   return streak;
+ }
 
   getPagesPerDay(): number {
-    if (this.timelines.length === 0) return 0;
+  if (this.timelines.length === 0) return 0;
 
-    const firstTimeline = this.timelines[0];
-    const lastTimeline = this.timelines[this.timelines.length - 1];
+  const uniqueDays = Array.from(
+    new Set(this.timelines.map(t => new Date(t.date).toISOString().split('T')[0]))
+  );
 
-    const startDate = new Date(firstTimeline.date);
-    const endDate = new Date(lastTimeline.date);
-    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const lastPage = this.getLastTimelinePage();
+  const daysCount = uniqueDays.length;
 
-    if (daysDiff === 0) return lastTimeline.currentpage;
+  return daysCount === 0 ? lastPage : Math.round((lastPage / daysCount) * 10) / 10;
+}
 
-    return Math.round((lastTimeline.currentpage / daysDiff) * 10) / 10;
-  }
 
   getReadingDays(): number {
-    return this.timelines.length;
-  }
+  const uniqueDays = new Set(
+    this.timelines.map(t => new Date(t.date).toISOString().split('T')[0])
+  );
+  return uniqueDays.size;
+}
+
 
   formatDate(date: Date | string): string {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -409,33 +424,41 @@ export class ProgressComponent implements OnInit {
     }
   }
 
-  getBookTitle(): string {
-    return this.book?.title || 'Title not available';
-  }
-
-  getBookAuthor(): string {
-    return this.book?.author || 'Unknown author';
-  }
-
-  getBookProgress(): number {
-    return this.book?.progress || 0;
-  }
-
   getBookPages(): number {
     return this.book?.pages || 0;
-  }
-
-  getBookStartDate(): Date | null {
-    return this.book?.start || null;
-  }
-
-  getBookProgressPercentage(): number {
-    if (!this.book || !this.book.pages) return 0;
-    return (this.book.progress / this.book.pages) * 100;
   }
 
   capitalizeFirstLetter(text: string): string {
     if (!text) return '';
     return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  }
+
+  getLastTimelinePage(): number {
+    if (this.timelines.length === 0) return 0;
+    const sortedTimelines = [...this.timelines].sort((a, b) => a.currentpage - b.currentpage);
+    return sortedTimelines[sortedTimelines.length - 1].currentpage;
+  }
+
+  getMinAllowedPage(): number {
+    const lastPage = this.getLastTimelinePage();
+    return Math.max(1, lastPage + 1);
+  }
+
+  pageValidator(control: any) {
+    const value = control.value;
+    const lastPage = this.getLastTimelinePage();
+    const maxPages = this.getBookPages();
+    
+    if (!value) return { required: true };
+    if (value < 1) return { min: true };
+    if (value > maxPages) return { max: true };
+    if (value <= lastPage) return { notProgressive: true };
+    
+    return null;
+  }
+
+  getProgressDegrees(): number {
+    if (!this.book || !this.book.progress) return 0;
+    return (this.book.progress / 100) * 360;
   }
 }
