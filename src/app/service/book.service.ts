@@ -80,4 +80,9 @@ export class BookService {
     return this.http.put<Book>(`${this.urlBook}/updateBookProgress`, book, { params });
   }
 
+  updateBookRating(book: Book, rating: number): Observable<Book> {
+    const params = new HttpParams().set('rating', rating.toString());
+    return this.http.put<Book>(`${this.urlBook}/updateBookRating`, book, { params });
+  }
+
 }

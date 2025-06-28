@@ -21,11 +21,6 @@
           <strong>Series:</strong> {{ book.series }}
         </p>
 
-        <!-- Static rating (5 stars) -->
-        <div class="book-rating">
-          <i class="fas fa-star" *ngFor="let star of [].constructor(5)"></i>
-        </div>
-
         <!-- Pages -->
         <p *ngIf="book.pages">
           <strong>Pages:</strong> {{ book.pages }}

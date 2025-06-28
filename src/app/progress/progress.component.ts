@@ -27,6 +27,9 @@ export class ProgressComponent implements OnInit {
   formR!: FormGroup;
   formT!: FormGroup;
 
+  hoveredRating: number = 0;
+  isUpdatingRating: boolean = false;
+
   constructor(
     private route: ActivatedRoute,
     private timelineService: TimelineService,
@@ -382,30 +385,28 @@ export class ProgressComponent implements OnInit {
         break;
       }
     }
-   return streak;
- }
+    return streak;
+  }
 
   getPagesPerDay(): number {
-  if (this.timelines.length === 0) return 0;
+    if (this.timelines.length === 0) return 0;
 
-  const uniqueDays = Array.from(
-    new Set(this.timelines.map(t => new Date(t.date).toISOString().split('T')[0]))
-  );
+    const uniqueDays = Array.from(
+      new Set(this.timelines.map(t => new Date(t.date).toISOString().split('T')[0]))
+    );
 
-  const lastPage = this.getLastTimelinePage();
-  const daysCount = uniqueDays.length;
+    const lastPage = this.getLastTimelinePage();
+    const daysCount = uniqueDays.length;
 
-  return daysCount === 0 ? lastPage : Math.round((lastPage / daysCount) * 10) / 10;
-}
-
+    return daysCount === 0 ? lastPage : Math.round((lastPage / daysCount) * 10) / 10;
+  }
 
   getReadingDays(): number {
-  const uniqueDays = new Set(
-    this.timelines.map(t => new Date(t.date).toISOString().split('T')[0])
-  );
-  return uniqueDays.size;
-}
-
+    const uniqueDays = new Set(
+      this.timelines.map(t => new Date(t.date).toISOString().split('T')[0])
+    );
+    return uniqueDays.size;
+  }
 
   formatDate(date: Date | string): string {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -460,5 +461,49 @@ export class ProgressComponent implements OnInit {
   getProgressDegrees(): number {
     if (!this.book || !this.book.progress) return 0;
     return (this.book.progress / 100) * 360;
+  }
+
+  getStarColor(starIndex: number): string {
+    const currentRating = this.book?.rating || 0;
+    const displayRating = this.hoveredRating || currentRating;
+    
+    if (starIndex <= displayRating) {
+      switch (displayRating) {
+        case 1: return '#e53e3e';
+        case 2: return '#ff6b35';
+        case 3: return '#ffd23f';
+        case 4: return '#68d391';
+        case 5: return '#38a169';
+        default: return '#e2e8f0';
+      }
+    } else {
+      return '#e2e8f0';
+    }
+  }
+
+  onStarHover(rating: number): void {
+    this.hoveredRating = rating;
+  }
+
+  onStarsLeave(): void {
+    this.hoveredRating = 0;
+  }
+
+  onStarClick(rating: number): void {
+    if (!this.book || this.isUpdatingRating) return;
+    
+    this.isUpdatingRating = true;
+    
+    this.bookService.updateBookRating(this.book, rating).subscribe({
+      next: (updatedBook) => {
+        this.book = updatedBook;
+        this.isUpdatingRating = false;
+      },
+      error: (error) => {
+        this.isUpdatingRating = false;
+        this.error = 'Unable to update rating';
+        console.error('Error updating rating:', error);
+      }
+    });
   }
 }

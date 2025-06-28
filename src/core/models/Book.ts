@@ -9,6 +9,7 @@ export class Book {
     liked!: boolean
     progress!: number
     pages!: number
+    rating!: number
     start!: Date
     end!: Date
     publicationInfo!: Date
