@@ -37,16 +37,20 @@
             <div class="book-cover">
               <img [src]="'http://localhost:8089/book-service/book/uploads/' + book.cover" alt="{{ book.title }}" class="book-cover"/>
               <div class="book-overlay">
-               <button class="heart-btn" 
+                <button class="heart-btn" 
                         [class.liked]="book.liked"
                         (click)="toggleFavorite(book)"
                         title="{{ book.liked ? 'Remove from favorites' : 'Add to favorites' }}">
-                              <i
-                class="fas fa-heart"
-                [ngStyle]="{ color: book.liked ? '#ec3143' : '#a8a8a8' }"
-              ></i>
-
-
+                  <i class="fas fa-heart"
+                     [ngStyle]="{ color: book.liked ? '#ec3143' : '#a8a8a8' }">
+                  </i>
+                </button>
+                
+                <!-- Nouveau bouton de suppression -->
+                <button class="delete-btn" 
+                        (click)="deleteBook(book.idBook)"
+                        title="Delete book">
+                  <i class="fas fa-trash-alt" style="color: #718096;"></i>
                 </button>
               </div>
             </div>
@@ -108,7 +112,6 @@
             <i class="fas fa-plus"></i>
             Add Your First Book
           </button>
-          
         </div>
       </ng-template>
     </div>

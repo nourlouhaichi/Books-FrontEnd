@@ -43,6 +43,10 @@ export class LibraryComponent implements OnInit {
       }
     });
 
+    this.loadBooks();
+  }
+
+  loadBooks(): void {
     this.bookService.getAllBooks().subscribe(data => {
       this.books = data.filter(book => book.status === true);
       this.books.sort((a, b) => {
@@ -59,6 +63,36 @@ export class LibraryComponent implements OnInit {
       this.calculateReadingStats();
       this.applyFilters();
     });
+  }
+
+  deleteBook(bookId: number): void {
+    if (confirm('Are you sure you want to delete this book? This action cannot be undone.')) {
+      this.bookService.deleteBook(bookId).subscribe({
+        next: () => {
+          this.books = this.books.filter(book => book.idBook !== bookId);
+          this.filteredBooks = this.filteredBooks.filter(book => book.idBook !== bookId);
+          const categorySet = new Set<string>();
+          this.books.forEach(book => {
+            book.categories?.forEach(cat => {
+              categorySet.add(cat.name);
+            });
+          });
+          this.categories = Array.from(categorySet).sort();
+          
+          this.calculateReadingStats();
+          const maxPage = Math.ceil(this.filteredBooks.length / this.booksPerPage);
+          if (this.currentPage > maxPage && maxPage > 0) {
+            this.currentPage = maxPage;
+          }
+          
+          console.log('Book deleted successfully');
+        },
+        error: (error) => {
+          console.error('Error deleting book:', error);
+          alert('Failed to delete the book. Please try again.');
+        }
+      });
+    }
   }
 
   onSearchChange(): void {
@@ -163,10 +197,11 @@ export class LibraryComponent implements OnInit {
       }
     });
   }
+
   clearFilters(): void {
-  this.searchTerm = '';
-  this.selectedCategory = '';
-  this.selectedStatus = '';
-  this.applyFilters();
-}
+    this.searchTerm = '';
+    this.selectedCategory = '';
+    this.selectedStatus = '';
+    this.applyFilters();
+  }
 }

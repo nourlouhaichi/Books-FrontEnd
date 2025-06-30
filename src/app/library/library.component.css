@@ -96,13 +96,7 @@ select {
   object-fit: cover;
 }
 
-.book-overlay {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
+
 
 .book-card:hover .book-overlay {
   opacity: 1;
@@ -297,4 +291,55 @@ select {
 .clear-filters-btn:hover {
   background: #c53030;
   box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+}
+
+/* Modifications pour l'overlay avec les deux boutons */
+.book-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Espacement entre les boutons */
+}
+
+.book-card:hover .book-overlay {
+  opacity: 1;
+}
+
+/* Styles communs pour les boutons d'overlay */
+.heart-btn, .delete-btn {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px); /* Effet de flou pour un aspect moderne */
+}
+
+.heart-btn:hover, .delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* Style spécifique pour le bouton de favoris */
+.heart-btn.liked {
+  background: #fed7d7;
+}
+
+/* Style spécifique pour le bouton de suppression */
+.delete-btn {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.delete-btn:hover {
+  background: #fed7d7;
+  color: #e53e3e;
 }
